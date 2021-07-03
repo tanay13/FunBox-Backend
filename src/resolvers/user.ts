@@ -11,6 +11,8 @@ import {
 import { User } from '../entities/User';
 import argon2 from 'argon2';
 
+//schema for userInput
+
 @InputType()
 class UsernamePasswordInput {
   @Field()
@@ -19,6 +21,8 @@ class UsernamePasswordInput {
   password: string;
 }
 
+//Schema for errors
+
 @ObjectType()
 class FieldError {
   @Field()
@@ -26,6 +30,8 @@ class FieldError {
   @Field()
   message: string;
 }
+
+//Schema of user response
 
 @ObjectType()
 class UserResponse {
@@ -38,19 +44,50 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
-  @Mutation(() => User)
+  //Register
+
+  @Mutation(() => UserResponse)
   async register(
     @Arg('options') options: UsernamePasswordInput,
     @Ctx() { em }: MyContext
-  ): Promise<User> {
+  ): Promise<UserResponse> {
+    if (options.username.length <= 4 || options.password.length <= 4) {
+      return {
+        errors: [
+          {
+            field: 'username or password',
+            message: 'Length must be greater than 4',
+          },
+        ],
+      };
+    }
+
     const hashedPassword = await argon2.hash(options.password);
     const user = em.create(User, {
       username: options.username,
       password: hashedPassword,
     });
-    await em.persistAndFlush(user);
-    return user;
+
+    try {
+      await em.persistAndFlush(user);
+    } catch (err) {
+      if (err.code === '23505') {
+        return {
+          errors: [
+            {
+              field: 'username',
+              message: 'username has already been taken',
+            },
+          ],
+        };
+      }
+    }
+    return {
+      user,
+    };
   }
+
+  //Login
 
   @Mutation(() => UserResponse)
   async login(
