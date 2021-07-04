@@ -9,13 +9,36 @@ import { HelloResolver } from './resolvers/hello';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 
+import redis from 'redis';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+
+const RedisStore = connectRedis(session);
+const redisClient = redis.createClient();
+
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
   await orm.getMigrator().up();
-  //   const post = orm.em.create(Post, { title: 'first post' });
-  //   await orm.em.persistAndFlush(post);
 
   const app = express();
+
+  app.use(
+    session({
+      name: 'sesId',
+      store: new RedisStore({
+        client: redisClient,
+        disableTouch: true,
+      }),
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+        httpOnly: true,
+        sameSite: 'lax', //csrf
+        secure: __prod__, //works in https only
+      },
+      secret: 'some strong session secret',
+      resave: false,
+    })
+  );
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
