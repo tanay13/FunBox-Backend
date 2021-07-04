@@ -1,3 +1,4 @@
+require('dotenv').config();
 import { MikroORM } from '@mikro-orm/core';
 import { Post } from './entities/Post';
 import { __prod__ } from './constants';
@@ -13,6 +14,6 @@ export default {
   entities: [Post, User],
   dbName: 'velocity',
   type: 'postgresql',
-  password: 'tanayismyname13',
+  password: process.env.PASSWORD,
   debug: !__prod__,
 } as Parameters<typeof MikroORM.init>[0];
