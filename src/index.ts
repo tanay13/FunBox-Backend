@@ -36,6 +36,7 @@ const main = async () => {
         sameSite: 'lax', //csrf
         secure: __prod__, //works in https only
       },
+      saveUninitialized: false,
       secret: 'some strong session secret',
       resave: false,
     })
