@@ -8,7 +8,8 @@ export class Post {
   @Property({ type: "date" })
   createdAt: Date = new Date();
 
-  @Property({ type: "date", onUpdate: () => new Date() }) // Automatically update the property value every time entity gets updated.
+  //Automatically update the property value every time entity gets updated.
+  @Property({ type: "date", onUpdate: () => new Date() }) //
   updatedAt: Date = new Date();
 
   @Property({ type: "text" })
