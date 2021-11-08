@@ -7,3 +7,9 @@ An ORM library is a completely ordinary library written in your language of choi
 ## migrations
 
 https://betterprogramming.pub/typeorm-migrations-explained-fdb4f27cb1b3
+
+## Persist and Flush
+
+https://mikro-orm.io/docs/entity-manager#persist-and-flush
+
+em.persist(entity) is used to mark new entities for future persisting. It will make the entity managed by given EntityManager and once flush will be called, it will be written to the database.
